@@ -30,19 +30,26 @@ def showDir(subdir = ''):
         top, down, children = split_pathname(subdir,depth - 1)
         oc.title2 = down.title();
 
-    for conference in sorted(data['conferences'], key=lambda conference: conference['title']):
-        top, down, children = split_pathname(conference['webgen_location'], depth)
+    folders = []
+    conferences = []
 
+    for conference in sorted(data['conferences'], key=lambda conference: conference['webgen_location']):
+        top, down, children = split_pathname(conference['webgen_location'], depth)
 
         if top != subdir or down in subdirs:
             continue
 
-
         if children:
-            oc.add(DirectoryObject(key=Callback(showDir, subdir = build_path(top,down)), title = down.title(), thumb = R(ICON)))
+            folders.append(DirectoryObject(key=Callback(showDir, subdir = build_path(top,down)), title = down.title(), thumb = R(ICON)))
             subdirs.add(down)
         else:
-            oc.add(DirectoryObject(key=Callback(showConference, acronym = conference['acronym']), title = conference['title'], thumb = Resource.ContentsOfURLWithFallback(url=conference['logo_url'], fallback=ICON)))
+            conferences.append(DirectoryObject(key=Callback(showConference, acronym = conference['acronym']), title = conference['title'], thumb = Resource.ContentsOfURLWithFallback(url=conference['logo_url'], fallback=ICON)))
+
+    for folder in folders:
+        oc.add(folder)
+
+    for conference in conferences:
+        oc.add(conference)
 
     return oc
 
